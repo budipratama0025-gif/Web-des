@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Lokasi</title><style>
+body{font-family:Arial;margin:0;background:#f5f7fb;color:#172033}.wrap{max-width:1000px;margin:30px auto;padding:18px}.card{background:#fff;padding:20px;border-radius:16px;box-shadow:0 5px 20px #0001}button{padding:10px 15px;border:0;border-radius:8px;background:#1769e0;color:white}table{width:100%;border-collapse:collapse;margin-top:15px}th,td{padding:10px;border-bottom:1px solid #eee;text-align:left;font-size:14px}@media(max-width:700px){table{font-size:12px}.wrap{padding:8px}}
+</style></head><body><div class="wrap"><div class="card">
+<h2>Admin — Lokasi yang Dibagikan</h2><p>Data hanya berasal dari pengguna yang memberikan izin lokasi.</p>
+<button onclick="load()">Muat Data</button><div id="out"></div></div></div>
+<script>
+const API_URL="https://script.google.com/macros/s/AKfycbwVQ1aGU6WsJkPppCfYKmC6wCCQM_YMuH05OUqsRtYVLQlv8Fozeo15-uTtFaTj25CjvA/exec";
+async function load(){
+ const o=document.getElementById("out");
+ if(API_URL.startsWith("GANTI_")){o.innerHTML="<p>Isi URL Apps Script terlebih dahulu.</p>";return}
+ o.innerHTML="Memuat...";
+ try{
+  const r=await fetch(API_URL+"?action=list"); const d=await r.json();
+  if(!d.length){o.innerHTML="<p>Belum ada data.</p>";return}
+  let h="<table><tr><th>Waktu</th><th>Latitude</th><th>Longitude</th><th>Akurasi</th><th>Peta</th></tr>";
+  d.reverse().forEach(x=>{h+=`<tr><td>${x.timestamp}</td><td>${x.latitude}</td><td>${x.longitude}</td><td>${Math.round(x.accuracy||0)} m</td><td><a target="_blank" href="https://www.google.com/maps?q=${x.latitude},${x.longitude}">Google Maps</a></td></tr>`});
+  o.innerHTML=h+"</table>";
+ }catch(e){o.innerHTML="<p>Gagal memuat data.</p>"}
+}
+</script></body></html>

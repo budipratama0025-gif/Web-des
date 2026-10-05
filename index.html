@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bagikan Lokasi</title>
+<style>
+body{font-family:Arial;margin:0;background:#f3f6fa;color:#172033}.box{max-width:520px;margin:50px auto;padding:28px;background:#fff;border-radius:18px;box-shadow:0 8px 30px #0001}button{width:100%;padding:14px;border:0;border-radius:10px;background:#1769e0;color:#fff;font-size:16px}.muted{color:#667085;font-size:14px}.ok{background:#ecfdf3;padding:14px;border-radius:10px}.err{background:#fef2f2;padding:14px;border-radius:10px}a{color:#1769e0}
+</style>
+</head>
+<body><div class="box">
+<h2>Bagikan Lokasi Anda</h2>
+<p>Dengan menekan tombol di bawah, Anda meminta browser mengambil lokasi perangkat Anda. Lokasi hanya dikirim setelah Anda memberikan izin lokasi.</p>
+<button id="btn" onclick="shareLocation()">Izinkan & Bagikan Lokasi</button>
+<div id="status" class="muted" style="margin-top:18px"></div>
+</div>
+<script>
+const API_URL="https://script.google.com/macros/s/AKfycbwVQ1aGU6WsJkPppCfYKmC6wCCQM_YMuH05OUqsRtYVLQlv8Fozeo15-uTtFaTj25CjvA/exec";
+function shareLocation(){
+ const s=document.getElementById("status"),b=document.getElementById("btn");
+ if(!navigator.geolocation){s.innerHTML='<div class="err">Browser tidak mendukung lokasi.</div>';return}
+ b.disabled=true;s.textContent="Meminta izin lokasi...";
+ navigator.geolocation.getCurrentPosition(async p=>{
+   const data={latitude:p.coords.latitude,longitude:p.coords.longitude,accuracy:p.coords.accuracy,timestamp:new Date().toISOString()};
+   if(API_URL.startsWith("GANTI_")) {
+     s.innerHTML='<div class="ok">Lokasi berhasil diperoleh.<br><a target="_blank" href="https://www.google.com/maps?q='+data.latitude+','+data.longitude+'">Buka di Google Maps</a><br><br>Tambahkan URL Apps Script pada file ini agar data dapat disimpan.</div>'; b.disabled=false; return;
+   }
+   try{
+     await fetch(API_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(data)});
+     s.innerHTML='<div class="ok">Lokasi telah dibagikan sesuai izin Anda.</div>';
+   }catch(e){s.innerHTML='<div class="err">Gagal mengirim lokasi.</div>';b.disabled=false}
+ },e=>{
+   const m={1:"Izin lokasi ditolak.",2:"Lokasi tidak tersedia.",3:"Permintaan lokasi terlalu lama."};
+   s.innerHTML='<div class="err">'+(m[e.code]||"Gagal mendapatkan lokasi.")+"</div>";b.disabled=false;
+ },{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+}
+</script></body></html>
